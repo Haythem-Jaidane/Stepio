@@ -2,7 +2,13 @@
 #include "Arduino.h"
 
 void Stepper::move(int S) {
+  /*
+   * this function turn the stepper motor S step if S>0
+   * the motor trun in clockwise else the motor turn in
+   * counter-clockwise
+   */
   bool wait = true;
+  
   digitalWrite(this->diraction_pin, S < 0 ? HIGH : LOW);
   this->dir = S > 0 ? 1 : -1;
   this->totalSteps = abs(S);
@@ -13,31 +19,24 @@ void Stepper::move(int S) {
   this->rampUpStepCount = 0;
   this->movementDone = false;
   TIMSK1 |=  (1 << OCIE1A);
+  
   while ( wait && ! this->movementDone );
 }
 
-void Stepper::SetDefaultPosition() {
-
-  Serial.println("----------  position setting  ----------");
-  Serial.println();
-  Serial.println("press on any button when you get the 0 position");
-  while (!(Serial.available())) {
-    this->write(0,this->rotation);
-  }
-  this->maxSpeed = 10;
-  int a = Serial.read();
-  Serial.println();
-}
-
-void Stepper::SetHardWare(int rotation, int mode_tr, int nb_micropas_driver, int mm_rev) {
+void Stepper::SetHardWare(int rotation, int mm_rev) {
+  /*
+   * this function define drive parametre number of step in rotation
+   * mm in one rotation
+   */
   this->rotation = rotation;
-  this->mode_tr = mode_tr;
-  this->nb_micropas_driver = nb_micropas_driver;
   this->mm_rev=mm_rev;
 }
 
 Stepper::Stepper(int enable_pin, int step_pin, int diraction_pin) {
-
+  /*
+   * the constructor function of the object that define the pins of
+   * the stepper
+   */
   this->enable_pin = enable_pin;
   this->step_pin = step_pin;
   this->diraction_pin = diraction_pin;
@@ -45,13 +44,13 @@ Stepper::Stepper(int enable_pin, int step_pin, int diraction_pin) {
 }
 
 void Stepper::setup_step(){
-
+  /*
+   * this fuction is called to setup motor in void setup
+   */
   pinMode(this->step_pin, OUTPUT);
   pinMode(this->diraction_pin, OUTPUT);
   pinMode(this->enable_pin, OUTPUT);
   digitalWrite(this->enable_pin, 0);
-
-  Serial.begin(9600);
   
   noInterrupts();
   TCCR1A=0;
@@ -61,14 +60,16 @@ void Stepper::setup_step(){
   TCCR1B |= (1 << WGM12);
   TCCR1B |= ((1 << CS11) | (1 << CS10)); 
   interrupts();
-
-  this->SetDefaultPosition();
-  this->setSpeed(0,1000);
-  this->SetHardWare(400,0,1,10);
 }
 
 void Stepper::write(char mode, int parametre) {
-
+  /*
+   * this function is used to move stepper with muliple mode
+   * 0: step
+   * 1: °
+   * 2: rotation
+   * 3: mm
+   */
   switch (mode) {
 
     case 0:
@@ -103,7 +104,12 @@ void Stepper::write(char mode, int parametre) {
 }
 
 void Stepper::writeAbs(char mode, int parametre) {
-
+  /*
+   * 0: step
+   * 1: °
+   * 2: rotation
+   * 3: mm 
+   */
   if (this->step / this->rotation < 1) {
     this->write(mode, parametre);
   }
@@ -111,7 +117,9 @@ void Stepper::writeAbs(char mode, int parametre) {
 }
 
 int Stepper::getposition(char mode) {
-
+  /*
+   * this function return the initial position of the stepper
+   */
   switch (mode) {
 
     case 0:
@@ -134,7 +142,9 @@ int Stepper::getposition(char mode) {
 }
 
 void Stepper::setposition(char mode, int parametre) {
-
+  /*
+   * 
+   */
   switch (mode) {
 
     case 0:
@@ -152,7 +162,17 @@ void Stepper::setposition(char mode, int parametre) {
 }
 
 void Stepper::setSpeed(char mode, int parametre) {
-
+  /*
+   * this function is used to set the speed 
+   * of the stepper motor
+   * 
+   * int parametre : new speed of motor
+   * char mode : type of speed
+   * 0: step/s
+   * 1: °/s
+   * 2: rotation/s
+   * 3: mm/s
+   */
   switch (mode) {
 
     case 0:
@@ -175,7 +195,15 @@ void Stepper::setSpeed(char mode, int parametre) {
 }
 
 int Stepper::getSpeed(char mode) {
-
+  /*
+   * this function return the speed of the motor
+   * 
+   * char mode: type of speed
+   * 0: step/s
+   * 1: °/s
+   * 2: rotation/s
+   * 3: mm/s
+   */
   switch (mode) {
 
     case 0:
@@ -198,7 +226,10 @@ int Stepper::getSpeed(char mode) {
 
 
 void Stepper::interrupt(){
-  
+  /*
+   *  this function is called in every timer interrution
+   *  that make stepper motor turn smothly
+   */  
   if ( this->stepCount < this->totalSteps ) {
     digitalWrite(this->step_pin, 1);
     digitalWrite(this->step_pin, 0);
@@ -226,5 +257,4 @@ void Stepper::interrupt(){
   }
 
   OCR1A = this->d;
-  TCNT1=0;
 }

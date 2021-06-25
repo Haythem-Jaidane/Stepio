@@ -1,9 +1,7 @@
-
-
 class Stepper{
   public:
     //
-    void SetHardWare(int rotation,int mode_tr,int nb_micropas_driver,int mm_rev);
+    void SetHardWare(int rotation ,int mm_rev);
     Stepper(int enable_pin,int step_pin,int diraction_pin);
     void setup_step();
     void write(char mode,int parametre);
@@ -15,30 +13,25 @@ class Stepper{
     void interrupt();
     void SetDefaultPosition();
 
-    volatile int stepPosition = 0;
-
    private:
 
-    int enable_pin;
-    int step_pin;
-    int diraction_pin;
-
-    int rotation=400;
+    unsigned int enable_pin;
+    unsigned int step_pin;
+    unsigned int diraction_pin;
  
     int pos_init=0;
     int angle_init=0;
     int mm_init=0;
-
-    int pos=0;
     
-    int step=0;
-    int angle=0;
-    int n_rotation=0;
-    int mm=0;
+    volatile int step=0;
+    volatile int angle=0;
+    volatile int mm=0;
 
-    int mode_tr;
-    int nb_micropas_driver;
-    int mm_rev;
+    volatile int stepPosition = 0;
+    volatile int n_rotation=0;
+
+    unsigned int rotation=400;
+    volatile unsigned int mm_rev;
 
     unsigned int c0;
 

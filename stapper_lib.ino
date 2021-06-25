@@ -6,21 +6,43 @@ Stepper S(4,3,2);
 void setup() {
   // put your setup code here, to run once:
   S.setup_step();
-  delay(5000);
+  
+  S.setSpeed(0,10);
+  S.SetHardWare(400,10);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  S.write(0,400);
-  Serial.print("step : ");
-  Serial.println(S.getposition(0));
-  Serial.print("angle : ");
-  Serial.println(S.getposition(1));
-  Serial.print("rotation : ");
-  Serial.println(S.getposition(2));
-  Serial.print("mm : ");
-  Serial.println(S.getposition(3));
-  S.write(0,-400);
+  S.write(0,  1600 );
+  S.write(0, -1600 );
+  S.write(0, 0 );
+
+  S.write(0, 200 );
+  S.write(0, 400 );
+  S.write(0, 600 );
+  S.write(0, 800 ); 
+
+  S.write(0, 400 );
+  S.write(0, 600 );
+  S.write(0, 200 );
+  S.write(0, 400 );
+  S.write(0, 0 );
+
+  S.setSpeed(0, 600);
+  S.write(0, 200 );
+  S.write(0, 400 );
+
+  S.setSpeed(0, 400);
+  S.write(0, 600 );
+  S.write(0, 800 );
+
+  S.setSpeed(0, 200);
+  S.write(0, 1000 );
+  S.write(0, 1200 );
+
+  S.setSpeed(0, 10);
+  S.write(0, 0 );
+  
 }
 
 ISR(TIMER1_COMPA_vect){
