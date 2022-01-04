@@ -60,10 +60,10 @@ class Stepper{
     volatile int dir = 0;                                           // direction of the stepper (1: direct ,0: stop ,-1: indirect)
     // ------------------- the calculation -------------------
     unsigned int c0;                                                // first delay value
-    volatile unsigned long n = 0;                                   // 
+    volatile unsigned long n = 0;                                   // counter time value n
     volatile float d;                                               // delay value
     volatile unsigned long stepCount = 0;                           // step counter value
-    volatile unsigned long rampUpStepCount = 0;                     //
+    volatile unsigned long rampUpStepCount = 0;                     // rampup phase counter
     volatile unsigned long totalSteps = 0;                          // number of steps must be done by stepper
     volatile bool movementDone = false;                             // movementDone flag that define the stepper
 

@@ -1,4 +1,4 @@
-#include "lib.h"
+#include "Stepio.h"
 #include "Arduino.h"
 
 /*
@@ -22,12 +22,12 @@ void Stepper::move(int S) {
 }
 
 /*
- * this function define drive parametre number of step in rotation   
+ * this function define drive parametre number of step in rotation
  * mm in one rotation
  */
 
 void Stepper::SetHardWare(int rotation, int mm_rev) {
-  this->rotation = rotation;  // config number step by rotation 
+  this->rotation = rotation;  // config number step by rotation
   this->mm_rev=mm_rev;        // config distance spend in mm in one motor evolution
 }
 
@@ -35,7 +35,7 @@ void Stepper::SetHardWare(int rotation, int mm_rev) {
  * the constructor method of the object that define the pins of
  * the stepper
  */
-   
+
 Stepper::Stepper(int enable_pin, int step_pin, int diraction_pin) {
   this->enable_pin = enable_pin;        // config the enable pin
   this->step_pin = step_pin;            // config step pin
@@ -46,15 +46,15 @@ Stepper::Stepper(int enable_pin, int step_pin, int diraction_pin) {
 /*
  * this fuction is called to setup motor in void setup
  */
- 
+
 void Stepper::setup_step(){
   pinMode(this->step_pin, OUTPUT);        // set step pin to OUTPUT mode
   pinMode(this->diraction_pin, OUTPUT);   // set diraction pin to OUTPUT mode
   pinMode(this->enable_pin, OUTPUT);      // set enable pin to OUTPUT mode
   digitalWrite(this->enable_pin, 0);      // give enable 0V
-  
+
   cli();                                  // disable interuption
-  TCCR1A=0;                               // initial TCCR1A register to 0x00 
+  TCCR1A=0;                               // initial TCCR1A register to 0x00
   TCCR1B=0;                               // initial TCCR1B register to 0x00
   TCNT1=0;                                // set TIMER1 counter to 0
   OCR1A = 1000;                           // set the comparator to 1000
@@ -65,20 +65,20 @@ void Stepper::setup_step(){
 
 /*
  * this method is used to move stepper with muliple mode
- * 
+ *
  * 0: step
  * 1: °
  * 2: rotation
  * 3: mm
  */
-   
+
 void Stepper::write(char mode, int parametre) {
   switch (mode) {
 
     case 0:
 
       this->move(parametre);                                       // call move method
-      this->step += parametre;                                     // increase number of steps 
+      this->step += parametre;                                     // increase number of steps
       break;
 
     case 1:
@@ -107,9 +107,9 @@ void Stepper::write(char mode, int parametre) {
 }
 
 /*
- * like write() but on one rotation 
+ * like write() but on one rotation
  */
-   
+
 void Stepper::writeAbs(char mode, int parametre) {
   if (this->step / this->rotation < 1) {        // check if one evolution is done
     this->write(mode, parametre);               // write the diserved move
@@ -119,12 +119,12 @@ void Stepper::writeAbs(char mode, int parametre) {
 /*
  * this method return the initial position of the stepper
  */
-   
+
 int Stepper::getposition(char mode) {
   switch (mode) {
 
     case 0:
-      return this->stepPosition;  // return the current position of motor in step 
+      return this->stepPosition;  // return the current position of motor in step
       break;
 
     case 1:
@@ -145,7 +145,7 @@ int Stepper::getposition(char mode) {
 /*
  * the method set the default position of the
  * stepper
- * 
+ *
  * char mode : type of speed
  * 0: step/s
  * 1: °/s
@@ -172,9 +172,9 @@ void Stepper::setposition(char mode, int parametre) {
 }
 
 /*
- * this function is used to set the speed 
+ * this function is used to set the speed
  * of the stepper motor
- * 
+ *
  * int parametre : new speed of motor
  * char mode : type of speed
  * 0: step/s
@@ -187,7 +187,7 @@ void Stepper::setSpeed(char mode, int parametre) {
   switch (mode) {
 
     case 0:
-      this->maxSpeed = parametre;                            // set speed in step/s                      
+      this->maxSpeed = parametre;                            // set speed in step/s
       break;
 
     case 1:
@@ -195,7 +195,7 @@ void Stepper::setSpeed(char mode, int parametre) {
       break;
 
     case 2:
-      this->maxSpeed = parametre * this->rotation;           // set speed in rotation/s  
+      this->maxSpeed = parametre * this->rotation;           // set speed in rotation/s
       break;
 
     case 3:
@@ -207,7 +207,7 @@ void Stepper::setSpeed(char mode, int parametre) {
 
 /*
  * this function return the speed of the motor
- * 
+ *
  * char mode: type of speed
  * 0: step/s
  * 1: °/s
@@ -216,7 +216,7 @@ void Stepper::setSpeed(char mode, int parametre) {
  */
 
 int Stepper::getSpeed(char mode) {
-  
+
   switch (mode) {
 
     case 0:
@@ -240,14 +240,14 @@ int Stepper::getSpeed(char mode) {
 /*
  *  this function is called in every timer interrution
  *  that make stepper motor turn smothly
- */ 
+ */
 
-void Stepper::interrupt(){ 
+void Stepper::interrupt(){
   if ( this->stepCount < this->totalSteps ) {
     // pulse the step pin to turn one steppe
     digitalWrite(this->step_pin, 1);    // set step pin to high
     digitalWrite(this->step_pin, 0);    // set step pin to low
-    // increase the step counter  
+    // increase the step counter
     this->stepCount++;                  // increase step counter
   }
   else {
@@ -256,16 +256,16 @@ void Stepper::interrupt(){
     this->d = this->maxSpeed;           // set delay value to maxspeed
   }
   // --------------------  ramp up phase  --------------------
-  if ( this->rampUpStepCount == 0 ) { 
+  if ( this->rampUpStepCount == 0 ) {
     this->n++;
     this->d = this->d - (2 * this->d) / (4 * this->n + 1);
     if ( this->d <= this->maxSpeed ) {  // reached max speed
       this->d = this->maxSpeed;         // set delay value to maxspeed
-      this->rampUpStepCount = this->stepCount;
+      this->rampUpStepCount = this->stepCount; // set rampup phase counter to step counter value
     }
     // ----------------  reached halfway point  ----------------
-    if ( this->stepCount >= this->totalSteps / 2 ) { 
-      this->rampUpStepCount = this->stepCount;                        //
+    if ( this->stepCount >= this->totalSteps / 2 ) {
+      this->rampUpStepCount = this->stepCount; // set rampup phase counter to step counter value
     }
   }
   // --------------------  ramp down phase  --------------------
